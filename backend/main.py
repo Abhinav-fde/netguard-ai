@@ -183,7 +183,7 @@ Rules:
     }
 
     payload = {
-        "model": "google/gemini-2.0-flash-001",
+        "model": "google/gemini-2.5-flash",
         "messages": [
             {
                 "role": "user",

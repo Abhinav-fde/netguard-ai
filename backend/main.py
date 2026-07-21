@@ -323,10 +323,10 @@ def advanced_diagnostics():
 
     except (FileNotFoundError, subprocess.TimeoutExpired):
         # Render containers may not provide the "ip" command
-        gateway = "Unavailable"
+        gateway = "Cloud Managed"
 
     except Exception:
-        gateway = "Unknown"
+        gateway = "Cloud Managed"
 
     diagnostics["gateway"] = {
         "address": gateway

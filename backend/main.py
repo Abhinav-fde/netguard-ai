@@ -19,11 +19,10 @@ app = FastAPI(
     description="Network monitoring and intelligent diagnostics API",
     version="1.0.0"
 )
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -46,31 +45,55 @@ def root():
         "status": "running"
     }
 
-
 @app.get("/api/network-health")
 def network_health():
     target = "8.8.8.8"
 
-    ping_parameter = (
-        "-n"
-        if platform.system().lower() == "windows"
-        else "-c"
-    )
-
     start_time = time.time()
 
-    result = subprocess.run(
-        ["ping", ping_parameter, "1", target],
-        capture_output=True,
-        text=True
-    )
+    try:
+        # Try using the system ping command
+        ping_parameter = (
+            "-n"
+            if platform.system().lower() == "windows"
+            else "-c"
+        )
 
-    latency = round(
-        (time.time() - start_time) * 1000,
-        2
-    )
+        result = subprocess.run(
+            ["ping", ping_parameter, "1", target],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
 
-    online = result.returncode == 0
+        latency = round(
+            (time.time() - start_time) * 1000,
+            2
+        )
+
+        online = result.returncode == 0
+
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        # Render may not provide the ping executable.
+        # Use an HTTP connectivity check instead.
+        try:
+            start_time = time.time()
+
+            response = httpx.get(
+                "https://www.google.com",
+                timeout=5.0
+            )
+
+            latency = round(
+                (time.time() - start_time) * 1000,
+                2
+            )
+
+            online = response.status_code < 500
+
+        except Exception:
+            latency = 0
+            online = False
 
     hostname = socket.gethostname()
 
@@ -107,7 +130,6 @@ def network_health():
         "severity": severity,
         "incident": incident
     }
-
 @app.post("/api/diagnose")
 async def diagnose_network(metrics: NetworkMetrics):
 
@@ -115,6 +137,7 @@ async def diagnose_network(metrics: NetworkMetrics):
         return {
             "diagnosis": "OpenRouter API key is not configured."
         }
+
     prompt = f"""
 You are NetGuard AI, an expert network operations and troubleshooting assistant.
 
@@ -154,7 +177,6 @@ Rules:
 - Provide practical troubleshooting actions.
 """
 
-
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json"
@@ -187,8 +209,16 @@ Rules:
 
         result = response.json()
 
+        try:
+            diagnosis = result["choices"][0]["message"]["content"]
+        except (KeyError, IndexError):
+            return {
+                "diagnosis": "Invalid response received from OpenRouter.",
+                "error": result
+            }
+
         return {
-            "diagnosis": result["choices"][0]["message"]["content"]
+            "diagnosis": diagnosis
         }
 
     except Exception as error:
@@ -196,21 +226,21 @@ Rules:
             "diagnosis": "Unable to complete AI network diagnosis.",
             "error": str(error)
         }
-    
 @app.get("/api/diagnostics")
 def advanced_diagnostics():
     diagnostics = {}
 
     # Internet connectivity
     try:
-        result = subprocess.run(
-            ["ping", "-n", "1", "8.8.8.8"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-
-        diagnostics["internet"] = {
+       ping_parameter = "-n" if platform.system().lower() == "windows" else "-c"
+       result = subprocess.run(
+         ["ping", ping_parameter, "1", "8.8.8.8"],
+         capture_output=True,
+         text=True,
+         timeout=5
+)
+      
+       diagnostics["internet"] = {
             "status": "Connected" if result.returncode == 0 else "Disconnected"
         }
 
@@ -238,20 +268,33 @@ def advanced_diagnostics():
             "responseTime": 0
         }
 
-    # Default gateway
+        # Default gateway
     gateway = "Unknown"
 
     try:
-        route_result = subprocess.run(
-            ["ipconfig"],
-            capture_output=True,
-            text=True
-        )
+        if platform.system().lower() == "windows":
+            route_result = subprocess.run(
+                ["ipconfig"],
+                capture_output=True,
+                text=True
+            )
 
-        match = re.search(
-            r"Default Gateway[ .:]*([\d.]+)",
-            route_result.stdout
-        )
+            match = re.search(
+                r"Default Gateway[ .:]*([\d.]+)",
+                route_result.stdout
+            )
+
+        else:
+            route_result = subprocess.run(
+                ["ip", "route"],
+                capture_output=True,
+                text=True
+            )
+
+            match = re.search(
+                r"default via ([\d.]+)",
+                route_result.stdout
+            )
 
         if match:
             gateway = match.group(1)
@@ -262,7 +305,6 @@ def advanced_diagnostics():
     diagnostics["gateway"] = {
         "address": gateway
     }
-
     # Network traffic
     network_stats = psutil.net_io_counters()
 

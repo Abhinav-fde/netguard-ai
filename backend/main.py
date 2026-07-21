@@ -235,30 +235,42 @@ Rules:
 def advanced_diagnostics():
     diagnostics = {}
 
-    # Internet connectivity
+    # -------------------------------------------------
+    # Internet Connectivity
+    # -------------------------------------------------
     try:
-       ping_parameter = "-n" if platform.system().lower() == "windows" else "-c"
-       result = subprocess.run(
-         ["ping", ping_parameter, "1", "8.8.8.8"],
-         capture_output=True,
-         text=True,
-         timeout=5
-)
-      
-       diagnostics["internet"] = {
-            "status": "Connected" if result.returncode == 0 else "Disconnected"
+        start_time = time.time()
+
+        response = httpx.get(
+            "https://www.google.com",
+            timeout=5.0
+        )
+
+        diagnostics["internet"] = {
+            "status": (
+                "Connected"
+                if response.status_code < 500
+                else "Disconnected"
+            )
         }
 
     except Exception:
         diagnostics["internet"] = {
-            "status": "Unknown"
+            "status": "Disconnected"
         }
 
-    # DNS resolution
+    # -------------------------------------------------
+    # DNS Resolution
+    # -------------------------------------------------
     try:
         start = time.time()
+
         resolved_ip = socket.gethostbyname("google.com")
-        dns_time = round((time.time() - start) * 1000, 2)
+
+        dns_time = round(
+            (time.time() - start) * 1000,
+            2
+        )
 
         diagnostics["dns"] = {
             "status": "Healthy",
@@ -273,15 +285,19 @@ def advanced_diagnostics():
             "responseTime": 0
         }
 
-        # Default gateway
+    # -------------------------------------------------
+    # Default Gateway
+    # -------------------------------------------------
     gateway = "Unknown"
 
     try:
         if platform.system().lower() == "windows":
+
             route_result = subprocess.run(
                 ["ipconfig"],
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=5
             )
 
             match = re.search(
@@ -293,7 +309,8 @@ def advanced_diagnostics():
             route_result = subprocess.run(
                 ["ip", "route"],
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=5
             )
 
             match = re.search(
@@ -304,18 +321,35 @@ def advanced_diagnostics():
         if match:
             gateway = match.group(1)
 
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        # Render containers may not provide the "ip" command
+        gateway = "Unavailable"
+
     except Exception:
-        pass
+        gateway = "Unknown"
 
     diagnostics["gateway"] = {
         "address": gateway
     }
-    # Network traffic
-    network_stats = psutil.net_io_counters()
 
-    diagnostics["traffic"] = {
-        "bytesSent": network_stats.bytes_sent,
-        "bytesReceived": network_stats.bytes_recv
-    }
+    # -------------------------------------------------
+    # Network Traffic
+    # -------------------------------------------------
+    try:
+        network_stats = psutil.net_io_counters()
 
+        diagnostics["traffic"] = {
+            "bytesSent": network_stats.bytes_sent,
+            "bytesReceived": network_stats.bytes_recv
+        }
+
+    except Exception:
+        diagnostics["traffic"] = {
+            "bytesSent": 0,
+            "bytesReceived": 0
+        }
+
+    # -------------------------------------------------
+    # Return Diagnostics
+    # -------------------------------------------------
     return diagnostics

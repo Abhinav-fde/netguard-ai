@@ -67,9 +67,8 @@ export default function Home() {
     const fetchNetworkData = async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/network-health`
+          "https://netguard-ai-2.onrender.com/api/network-health"
         );
-
         if (!response.ok) {
           throw new Error("Failed to fetch network data");
         }

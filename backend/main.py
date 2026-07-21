@@ -189,7 +189,8 @@ Rules:
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        "max_tokens": 500
     }
 
     try:

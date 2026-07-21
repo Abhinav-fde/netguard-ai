@@ -288,7 +288,7 @@ def advanced_diagnostics():
     # -------------------------------------------------
     # Default Gateway
     # -------------------------------------------------
-    gateway = "Unknown"
+    gateway = "Cloud Managed"
 
     try:
         if platform.system().lower() == "windows":

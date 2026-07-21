@@ -202,6 +202,10 @@ Rules:
             )
 
         if response.status_code != 200:
+            print("OpenRouter Error Status:", response.status_code)
+            print("OpenRouter Error Response:", response.text)
+
+
             return {
                 "diagnosis": "AI diagnosis service is currently unavailable.",
                 "error": response.text

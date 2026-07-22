@@ -112,7 +112,7 @@ Latency history is rendered as a continuously updating chart (Recharts), giving 
 
 ```text
                     ┌─────────────────────┐
-                    │        User          │
+                    │        User         │
                     └──────────┬──────────┘
                                │
                                ▼

@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ NetGuard AI
+#  NetGuard AI
 
 ### AI-Powered Real-Time Network Monitoring & Intelligent Diagnostics Platform
 
@@ -21,25 +21,25 @@ A full-stack observability platform that watches your network in real time, runs
 </div>
 
 
-## 📸 Dashboard Preview
+##  Dashboard Preview
 
 <p align="center">
   <img src="./backend/screenshots/dashboard1.png" width="900"/>
 </p>
 
-## 📈 Network Performance
+##  Network Performance
 
 <p align="center">
   <img src="./backend/screenshots/network-performance.png" width="900"/>
 </p>
 
-## 🤖 AI Diagnosis
+##  AI Diagnosis
 
 <p align="center">
   <img src="./backend/screenshots/ai-diagnosis.png" width="900"/>
 </p>
 
-## 📖 Table of Contents
+##  Table of Contents
 
 - [Overview](#-overview)
 - [Why NetGuard AI](#-why-netguard-ai)
@@ -56,13 +56,13 @@ A full-stack observability platform that watches your network in real time, runs
 
 ---
 
-## 🧭 Overview
+##  Overview
 
 **NetGuard AI** is a production-deployed, full-stack network observability tool. It continuously samples system and network-level metrics (latency, packet loss, DNS health, connectivity, traffic), surfaces them through a live dashboard, and feeds the data to an LLM (via OpenRouter/Gemini) that acts as an on-call network engineer — diagnosing issues and recommending fixes in real time.
 
 It's built the way a real monitoring product would be: separate frontend/backend services, a documented REST API, environment-based configuration, and independent deployments on Vercel and Render.
 
-## 💡 Why NetGuard AI
+##  Why NetGuard AI
 
 Most student projects stop at "displays some data on a dashboard." NetGuard AI goes further by combining three things that are genuinely hard to get right together:
 
@@ -70,23 +70,23 @@ Most student projects stop at "displays some data on a dashboard." NetGuard AI g
 - **Full-stack engineering** — a typed Next.js/TypeScript frontend talking to an async FastAPI backend over a clean REST contract
 - **Applied AI** — using an LLM not as a chatbot bolted on top, but as a reasoning layer over live telemetry to produce root-cause analysis
 
-## 🚀 Features
+##  Features
 
-### 📊 Real-Time Network Monitoring
+###  Real-Time Network Monitoring
 - Live network latency tracking with continuous sampling
 - Network health status detection (healthy / degraded / critical)
 - Packet-loss monitoring
 - Local IP and hostname resolution
 - Real-time performance visualization via interactive charts
 
-### 🔍 Advanced Network Diagnostics
+###  Advanced Network Diagnostics
 - Internet connectivity detection
 - DNS health monitoring and resolution testing
 - DNS response-time measurement
 - Default gateway detection
 - Live network traffic monitoring (bytes sent/received)
 
-### 🤖 AI Network Copilot
+###  AI Network Copilot
 An AI-powered diagnostic assistant that reads current network metrics and returns:
 - Overall network health assessment
 - Automatic issue detection
@@ -96,46 +96,38 @@ An AI-powered diagnostic assistant that reads current network metrics and return
 
 Powered through the **OpenRouter API** using **Google Gemini**.
 
-### ⚡ Network Event Detection
+###  Network Event Detection
 Automatically detects and logs events such as:
 - High-latency spikes
 - Internet connectivity drops
 - Network health warnings
 - Critical network conditions
 
-### 📈 Live Performance Visualization
+###  Live Performance Visualization
 Latency history is rendered as a continuously updating chart (Recharts), giving an at-a-glance view of network trends over time.
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
+## Architecture
 
-```text
-                    ┌─────────────────────┐
-                    │        User         │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Next.js Frontend  │
-                    │      (Vercel)       │
-                    └──────────┬──────────┘
-                               │ REST API (HTTPS)
-                               ▼
-                    ┌─────────────────────┐
-                    │   FastAPI Backend   │
-                    │      (Render)       │
-                    └──────────┬──────────┘
-                               │
-                 ┌─────────────┴─────────────┐
-                 ▼                           ▼
-        ┌─────────────────┐         ┌─────────────────┐
-        │ Network Metrics │         │   OpenRouter    │
-        │ & Diagnostics   │         │  API → Gemini   │
-        │ (psutil, httpx) │         │                 │
-        └─────────────────┘         └─────────────────┘
+```mermaid
+flowchart TD
+    A[User]
+    B[Next.js Frontend<br/>Vercel]
+    C[FastAPI Backend<br/>Render]
+    D[Network Metrics & Diagnostics<br/>psutil + httpx]
+    E[OpenRouter API]
+    F[Gemini Model]
+
+    A --> B
+    B -->|REST API / HTTPS| C
+
+    C --> D
+    C --> E
+
+    E --> F
 ```
-
 **Design notes:**
 - Frontend and backend are independently deployed and scaled (Vercel + Render), mirroring a real microservice split.
 - The backend exposes a stable REST contract, so the AI provider (OpenRouter/Gemini) can be swapped without touching the frontend.

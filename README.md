@@ -133,7 +133,7 @@ flowchart TD
 - The backend exposes a stable REST contract, so the AI provider (OpenRouter/Gemini) can be swapped without touching the frontend.
 - All secrets are environment-scoped and never committed to source control.
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technologies |
 |---|---|
@@ -145,7 +145,7 @@ flowchart TD
 
 ---
 
-## 📡 API Reference
+##  API Reference
 
 Base URL (production): `https://netguard-ai-2.onrender.com`
 
@@ -158,7 +158,7 @@ Base URL (production): `https://netguard-ai-2.onrender.com`
 
 **Metrics tracked:** latency · packet loss · internet connectivity · DNS health · DNS response time · DNS resolution · network traffic · local IP · hostname · gateway info
 
-## 🤖 AI Diagnosis Workflow
+##  AI Diagnosis Workflow
 
 ```text
 Network Metrics
@@ -178,7 +178,7 @@ AI Root-Cause Analysis + Troubleshooting Recommendations
 
 ---
 
-## ⚙️ Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js 18+
@@ -246,16 +246,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🔐 Environment Variables
+##  Environment Variables
 
 | Variable | Location | Description |
 |---|---|---|
 | `OPENROUTER_API_KEY` | `backend/.env` | API key for AI-powered diagnosis via OpenRouter/Gemini |
 | `NEXT_PUBLIC_API_URL` | `frontend/.env.local` | URL of the FastAPI backend the frontend talks to |
 
-> ⚠️ Never commit API keys or `.env` files to version control.
+>  Never commit API keys or `.env` files to version control.
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 netguard-ai/
@@ -279,7 +279,7 @@ netguard-ai/
 
 ---
 
-## 🔮 Roadmap
+##  Roadmap
 
 - [ ] Historical network performance storage
 - [ ] User authentication
@@ -292,7 +292,7 @@ netguard-ai/
 - [ ] WebSocket-based live updates
 - [ ] Cloud monitoring integrations (AWS/GCP/Azure)
 
-## 👨‍💻 Author
+##  Author
 
 **Abhinav**
 Computer Science & Engineering student — building at the intersection of AI, full-stack development, and cloud infrastructure.

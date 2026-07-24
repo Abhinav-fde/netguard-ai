@@ -240,6 +240,14 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
+      {/* Mobile Rotate Message */}
+      <div className="rotate-phone-message">
+        <div className="rotate-content">
+          <div className="rotate-icon">↻</div>
+          <h2>Rotate Your Device</h2>
+          <p>NetGuard is optimized for landscape view on mobile.</p>
+        </div>
+      </div>
       <nav className="border-b border-slate-800 bg-slate-900/70 px-8 py-5">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div>
